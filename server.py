@@ -1,37 +1,43 @@
-from socket import *
-import os
-import sys
-import codecs
-import glob
+import socket 
+import threading
 
-def Server():
-  HOST = ''
-  PORT = 9000
+HEADER = 64
+PORT = 5050
+SERVER = socket.gethostbyname(socket.gethostname())
+ADDR = (SERVER, PORT)
+FORMAT = 'utf-8'
+DISCONNECT_MESSAGE = "!DISCONNECT"
 
-  server_socket = socket(AF_INET, SOCK_STREAM)
-  orig = (HOST, PORT)
-  server_socket.bind(orig)
-  server_socket.listen(1)
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(ADDR)
 
-  print("creating server...")
+def handle_client(conn, addr):
+    print(f"[NEW CONNECTION] {addr} connected.")
 
-  try:
-    print("entering while loops")
-    while(1):
-      (connectionSocket, addr) = server_socket.accept()
+    connected = True
+    while connected:
+        msg_length = conn.recv(HEADER).decode(FORMAT)
+        if msg_length:
+            msg_length = int(msg_length)
+            msg = conn.recv(msg_length).decode(FORMAT)
+            if msg == DISCONNECT_MESSAGE:
+                connected = False
 
-      while True:
-        print("Cliente {} conectado ao servidor".format(addr))
+            print(f"[{addr}] {msg}")
+            conn.send("Msg received".encode(FORMAT))
 
-        request = connectionSocket.recv(1024).decode()
-        print(request)
+    conn.close()
+        
 
-        connectionSocket.sendall(request.encode())
+def start():
+    server.listen()
+    print(f"[LISTENING] Server is listening on {SERVER}")
+    while True:
+        conn, addr = server.accept()
+        thread = threading.Thread(target=handle_client, args=(conn, addr))
+        thread.start()
+        print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
 
-  except KeyboardInterrupt:
-    print("\n Shutting down... \n")
-  except Exception as exc:
-    print("Error: \n")
-    print(exc)
 
-Server()
+print("[STARTING] server is starting...")
+start()
