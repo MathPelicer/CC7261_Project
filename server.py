@@ -12,6 +12,8 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
 def handle_client(conn, addr):
+    oil_qnt = 0
+    
     print(f"[NEW CONNECTION] {addr} connected.")
 
     connected = True
@@ -20,6 +22,10 @@ def handle_client(conn, addr):
         if msg_length:
             msg_length = int(msg_length)
             msg = conn.recv(msg_length).decode(FORMAT)
+
+            if "[OIL]" in msg:
+                oil_qnt += 0.75
+
             if msg == DISCONNECT_MESSAGE:
                 connected = False
 
