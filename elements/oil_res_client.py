@@ -4,13 +4,21 @@
 import socket
 import random
 import time
+import platform
 
 HEADER = 64
 PORT = 5050
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
-SERVER = "192.168.0.6"
-ADDR = (SERVER, PORT)
+SERVER_WIN = "192.168.0.6"
+SERVER_LINUX = "192.0.1.1"
+
+cur_os = platform.system()
+
+if cur_os == "Windows":
+    ADDR = (SERVER_WIN, PORT)
+else:
+    ADDR = (SERVER_LINUX, PORT)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
