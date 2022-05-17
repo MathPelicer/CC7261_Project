@@ -9,7 +9,7 @@ HEADER = 64
 PORT = 5050
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
-SERVER = "127.0.1.1"
+SERVER = "192.168.0.6"
 ADDR = (SERVER, PORT)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -22,20 +22,27 @@ def send(msg):
     send_length += b' ' * (HEADER - len(send_length))
     client.send(send_length)
     client.send(message)
-    print(client.recv(2048).decode(FORMAT))
+
+    msg_recv = client.recv(2048).decode(FORMAT)
+    print(msg_recv)
+    return msg_recv
 
 def main():
     time_count = 0
 
     while True:
         qnt_oil_recv = random.uniform(1, 2)
-        time.sleep(1)
+        oil_qnt = float(send("[OIL-GET]"))
+        print(f"[OIL-GET] {oil_qnt} liters")
 
         if time_count % 10 == 0:
             print(f"[RECEIVING OIL] {qnt_oil_recv} liters")
-            send("[OIL] sending oil...")
-        
-        time_count += 1
+            send(f"[OIL-SET] {qnt_oil_recv}")
 
+        if oil_qnt > 0.75:
+            send("[OIL-SENT]")
+
+        time.sleep(1)
+        time_count += 1
 
 main()

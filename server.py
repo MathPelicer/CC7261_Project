@@ -7,12 +7,15 @@ SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
+oil_qnt = 0
+list_of_things = {"oil_qnt": 0,
+                "EtOH": 0}
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
 def handle_client(conn, addr):
-    oil_qnt = 0
+    
     
     print(f"[NEW CONNECTION] {addr} connected.")
 
@@ -23,14 +26,24 @@ def handle_client(conn, addr):
             msg_length = int(msg_length)
             msg = conn.recv(msg_length).decode(FORMAT)
 
-            if "[OIL]" in msg:
-                oil_qnt += 0.75
+            if "[OIL-SENT]" in msg:
+                list_of_things["oil_qnt"] -= 0.75
+                conn.send("[OIL->REACTOR] 0.75 liter of oil".encode(FORMAT))
+
+            if "[OIL-GET]" in msg:
+                conn.send(str(list_of_things["oil_qnt"]).encode(FORMAT))
+                print(f'[OIL-GET] {list_of_things["oil_qnt"]}')
+
+            if "[OIL-SET]" in msg:
+                msg_set = msg.split(" ")
+                list_of_things["oil_qnt"] += float(msg_set[1])
+                conn.send("[OIL RECEIVED IN RESERVOIR]".encode(FORMAT))
+                print(f'[OIL RECEIVED] {list_of_things["oil_qnt"]} liters in the tank   ')
 
             if msg == DISCONNECT_MESSAGE:
                 connected = False
 
             print(f"[{addr}] {msg}")
-            conn.send("Msg received".encode(FORMAT))
 
     conn.close()
         
