@@ -35,7 +35,7 @@ def main():
         print(f"[RECEIVING EtOH] {qnt_etoh_recv} liters")
         send(f"[EtOH-SET] {qnt_etoh_recv}")
 
-        etoh_qnt = float(send("[OIL-GET]"))
+        etoh_qnt = float(send("[EtOH-GET]"))
         print(f"[EtOH-GET] {etoh_qnt} liters")
 
         if etoh_qnt > 0 and etoh_qnt < 1:
