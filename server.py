@@ -7,16 +7,20 @@ SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
-oil_qnt = 0
-list_of_things = {"oil_qnt": 0,
+
+element_machinery = {"oil": 0,
                 "EtOH": 0,
-                "NaOH": 0}
+                "NaOH": 0,
+                "reactor": {
+                    "oil": 0,
+                    "EtOH": 0,
+                    "NaOH": 0
+                }}
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
 def handle_client(conn, addr):
-    
     
     print(f"[NEW CONNECTION] {addr} connected.")
 
@@ -28,54 +32,64 @@ def handle_client(conn, addr):
             msg = conn.recv(msg_length).decode(FORMAT)
 
             # OIL communication protocol #
+            if "[OIL-GET]" in msg:
+                conn.send(str(element_machinery["oil"]).encode(FORMAT))
+                print(f'[OIL-GET] {element_machinery["oil"]}')
 
             if "[OIL-SENT]" in msg:
-                list_of_things["oil_qnt"] -= 0.75
-                conn.send("[OIL->REACTOR] 0.75 liter of oil".encode(FORMAT))
-
-            if "[OIL-GET]" in msg:
-                conn.send(str(list_of_things["oil_qnt"]).encode(FORMAT))
-                print(f'[OIL-GET] {list_of_things["oil_qnt"]}')
+                element_machinery["oil"] -= 0.75
+                element_machinery["reactor"]["oil"] += 0.75
+                conn.send("[OIL->REACTOR] 0.75 liter".encode(FORMAT))
 
             if "[OIL-SET]" in msg:
                 msg_set = msg.split(" ")
-                list_of_things["oil_qnt"] += float(msg_set[1])
+                element_machinery["oil"] += float(msg_set[1])
                 conn.send("[OIL RECEIVED IN RESERVOIR]".encode(FORMAT))
-                print(f'[OIL RECEIVED] {list_of_things["oil_qnt"]} liters in total')
+                print(f'[OIL RECEIVED] {element_machinery["oil"]} liters in total')
 
             # EtOH communication protocol #
 
             if "[EtOH-GET]" in msg:
-                conn.send(str(list_of_things["EtOH"]).encode(FORMAT))
-                print(f'[EtOH-GET] {list_of_things["EtOH"]}')
+                conn.send(str(element_machinery["EtOH"]).encode(FORMAT))
+                print(f'[EtOH-GET] {element_machinery["EtOH"]}')
 
             if "[EtOH-SENT]" in msg:
                 msg_set = msg.split(" ")
-                list_of_things["EtOH"] -= float(msg_set[1])
+                etoh_qnt = float(msg_set[1])
+                element_machinery["EtOH"] -= etoh_qnt
+                element_machinery["reactor"]["EtOH"] += etoh_qnt
                 conn.send(f"[EtOH->REACTOR] {msg_set[1]} liter".encode(FORMAT))
 
             if "[EtOH-SET]" in msg:
                 msg_set = msg.split(" ")
-                list_of_things["EtOH"] += float(msg_set[1])
+                element_machinery["EtOH"] += float(msg_set[1])
                 conn.send("[EtOH RECEIVED]".encode(FORMAT))
-                print(f'[EtOH RECEIVED] {list_of_things["EtOH"]} liters in total')
+                print(f'[EtOH RECEIVED] {element_machinery["EtOH"]} liters in total')
 
             # NaOH communication protocol #
 
             if "[NaOH-GET]" in msg:
-                conn.send(str(list_of_things["NaOH"]).encode(FORMAT))
-                print(f'[NaOH-GET] {list_of_things["NaOH"]}')
+                conn.send(str(element_machinery["NaOH"]).encode(FORMAT))
+                print(f'[NaOH-GET] {element_machinery["NaOH"]}')
 
             if "[NaOH-SENT]" in msg:
                 msg_set = msg.split(" ")
-                list_of_things["NaOH"] -= float(msg_set[1])
+                naoh_qnt = float(msg_set[1])
+                element_machinery["NaOH"] -= naoh_qnt
+                element_machinery["reactor"]["NaOH"] += naoh_qnt
                 conn.send(f"[NaOH->REACTOR] {msg_set[1]} liter".encode(FORMAT))
-
+                
             if "[NaOH-SET]" in msg:
                 msg_set = msg.split(" ")
-                list_of_things["NaOH"] += float(msg_set[1])
+                element_machinery["NaOH"] += float(msg_set[1])
                 conn.send("[NaOH RECEIVED]".encode(FORMAT))
-                print(f'[NaOH RECEIVED] {list_of_things["NaOH"]} liters in total')
+                print(f'[NaOH RECEIVED] {element_machinery["NaOH"]} liters in total')
+
+            # REactor communication protocol #
+
+            if "[REACTOR-GET]" in msg:
+                conn.send(str(element_machinery["reactor"]).encode(FORMAT))
+                print(f'[REACTOR-GET] {element_machinery["reactor"]}')
 
             if msg == DISCONNECT_MESSAGE:
                 connected = False
