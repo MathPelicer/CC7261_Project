@@ -5,7 +5,7 @@ import socket
 import time
 import platform
 
-HEADER = 64
+HEADER = 1024
 PORT = 5050
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
@@ -49,6 +49,6 @@ def main():
         print(f"[RECEIVING EtOH] {qnt_etoh_recv} liters")
         send(f"[EtOH-SET] {qnt_etoh_recv}")
 
-        time.sleep(1)
+        time.sleep(5)
 
 main()

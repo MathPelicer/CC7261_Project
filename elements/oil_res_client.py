@@ -6,7 +6,7 @@ import random
 import time
 import platform
 
-HEADER = 64
+HEADER = 1024
 PORT = 5050
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
@@ -50,7 +50,7 @@ def main():
         if oil_qnt > 0.75:
             send("[OIL-OUT]")
 
-        time.sleep(1)
-        time_count += 1
+        time.sleep(5)
+        time_count += 5
 
 main()
