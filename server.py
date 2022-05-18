@@ -1,7 +1,8 @@
 import socket 
 import threading
+import json
 
-HEADER = 64
+HEADER = 1024
 PORT = 5050
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
@@ -12,9 +13,9 @@ element_machinery = {"oil": 0,
                 "EtOH": 0,
                 "NaOH": 0,
                 "reactor": {
-                    "oil": 0,
-                    "EtOH": 0,
-                    "NaOH": 0,
+                    "oil": 3,
+                    "EtOH": 2,
+                    "NaOH": 1.5,
                     "mix": 0
                 }}
 
@@ -70,7 +71,7 @@ def handle_client(conn, addr):
             # NaOH communication protocol #
 
             if "[NaOH-GET]" in msg:
-                conn.send(str(element_machinery["NaOH"]).encode(FORMAT))
+                conn.send(f'[NaOH-GET] {element_machinery["NaOH"]}'.encode(FORMAT))
                 print(f'[NaOH-GET] {element_machinery["NaOH"]}')
 
             if "[NaOH-OUT]" in msg:
@@ -92,10 +93,19 @@ def handle_client(conn, addr):
                 conn.send(str(element_machinery["reactor"]).encode(FORMAT))
                 print(f'[REACTOR-GET] {element_machinery["reactor"]}')
 
+            if "[REACTOR-PROC]" in msg:
+                msg_reactor_proc = msg.split("_")
+                print(msg_reactor_proc[1].replace("\'", "\""))
+                reactor_data = json.loads(msg_reactor_proc[1].replace("\'", "\"").strip())
+                element_machinery["reactor"] = reactor_data
+                conn.send("[REACTOR MIXING]".encode(FORMAT))
+                print(f'[REACTOR MIX] {element_machinery["reactor"]}')
+
             if msg == DISCONNECT_MESSAGE:
                 connected = False
 
             print(f"[{addr}] {msg}")
+            print(element_machinery)
 
     conn.close()
         
