@@ -14,8 +14,8 @@ element_machinery = {"oil": 0,
                 "NaOH": 0,
                 "reactor": {
                     "oil": 3,
-                    "EtOH": 2,
-                    "NaOH": 1.5,
+                    "EtOH": 1,
+                    "NaOH": 1,
                     "mix": 0
                 }}
 
