@@ -7,7 +7,7 @@ import time
 import platform
 import json
 
-HEADER = 64
+HEADER = 1024
 PORT = 5050
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
@@ -37,24 +37,40 @@ def send(msg):
     return msg_recv
 
 def main():
-    reactor_data = send("[REACTOR-GET]")
-    reactor_dict = json.loads(reactor_data.replace("\'", "\""))
-    print(f'[REACTOR-GET] OIL: {reactor_dict["oil"]} | EtOH: {reactor_dict["EtOH"]} | NaOH: {reactor_dict["NaOH"]}')
+    quarter_mix = 1.25
+    half_mix = 2.5
+    max_mix = 5
 
-    # while True:
-    #     qnt_naoh_recv = 0.5
-    #     print(f"[RECEIVING NaOH] {qnt_naoh_recv} liters")
-    #     send(f"[NaOH-SET] {qnt_naoh_recv}")
+    while True:
+        reactor_data = send("[REACTOR-GET]")
+        reactor_dict = json.loads(reactor_data.replace("\'", "\""))
+        print(f'[REACTOR-GET] OIL: {reactor_dict["oil"]} | EtOH: {reactor_dict["EtOH"]} | NaOH: {reactor_dict["NaOH"]} | MIX: {reactor_dict["mix"]}')
 
-    #     naoh_qnt = float(send("[NaOH-GET]"))
-    #     print(f"[NaOH-GET] {naoh_qnt} liters")
+        mix_value = reactor_dict["mix"]
+        reactor_dict.pop("mix")
+        print(reactor_dict)
+        smallest_element = min(reactor_dict, key=reactor_dict.get)
+        
 
-    #     if naoh_qnt > 0 and naoh_qnt < 1:
-    #         send(f"[NaOH-SENT] {naoh_qnt}")
-    #     elif naoh_qnt > 1:
-    #         send(f"[NaOH-SENT] 1")
+        if smallest_element == 'NaOH' or smallest_element == 'EtOH':
+            smallest_qnt = float(reactor_dict[smallest_element])
 
-    #     time.sleep(1)
+            if smallest_qnt > quarter_mix and (reactor_dict["oil"] >= (smallest_qnt * 2)):
+                reactor_dict["EtOH"] -= quarter_mix
+                reactor_dict["NaOH"] -= quarter_mix
+                reactor_dict["oil"] -= half_mix
+                reactor_dict["mix"] = mix_value + max_mix
+                print(reactor_dict)
+                send(f"[REACTOR-PROC]_{reactor_dict}")
+                # max_mix = float(reactor_dict["oil"]) + float(reactor_dict["EtOH"]) + float(reactor_dict["NaOH"])
+
+
+        # if naoh_qnt > 0 and naoh_qnt < 1:
+        #     send(f"[NaOH-SENT] {naoh_qnt}")
+        # elif naoh_qnt > 1:
+        #     send(f"[NaOH-SENT] 1")
+
+        time.sleep(5)
 
 main()
 
