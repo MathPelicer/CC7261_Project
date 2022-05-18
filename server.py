@@ -14,7 +14,8 @@ element_machinery = {"oil": 0,
                 "reactor": {
                     "oil": 0,
                     "EtOH": 0,
-                    "NaOH": 0
+                    "NaOH": 0,
+                    "mix": 0
                 }}
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -33,10 +34,10 @@ def handle_client(conn, addr):
 
             # OIL communication protocol #
             if "[OIL-GET]" in msg:
-                conn.send(str(element_machinery["oil"]).encode(FORMAT))
+                conn.send(f'[OIL-GET] {element_machinery["oil"]}'.encode(FORMAT))
                 print(f'[OIL-GET] {element_machinery["oil"]}')
 
-            if "[OIL-SENT]" in msg:
+            if "[OIL-OUT]" in msg:
                 element_machinery["oil"] -= 0.75
                 element_machinery["reactor"]["oil"] += 0.75
                 conn.send("[OIL->REACTOR] 0.75 liter".encode(FORMAT))
@@ -50,10 +51,10 @@ def handle_client(conn, addr):
             # EtOH communication protocol #
 
             if "[EtOH-GET]" in msg:
-                conn.send(str(element_machinery["EtOH"]).encode(FORMAT))
+                conn.send(f'[EtOH-GET] {element_machinery["EtOH"]}'.encode(FORMAT))
                 print(f'[EtOH-GET] {element_machinery["EtOH"]}')
 
-            if "[EtOH-SENT]" in msg:
+            if "[EtOH-OUT]" in msg:
                 msg_set = msg.split(" ")
                 etoh_qnt = float(msg_set[1])
                 element_machinery["EtOH"] -= etoh_qnt
@@ -72,7 +73,7 @@ def handle_client(conn, addr):
                 conn.send(str(element_machinery["NaOH"]).encode(FORMAT))
                 print(f'[NaOH-GET] {element_machinery["NaOH"]}')
 
-            if "[NaOH-SENT]" in msg:
+            if "[NaOH-OUT]" in msg:
                 msg_set = msg.split(" ")
                 naoh_qnt = float(msg_set[1])
                 element_machinery["NaOH"] -= naoh_qnt

@@ -39,16 +39,16 @@ def main():
     time_count = 0
 
     while True:
-        qnt_oil_recv = random.uniform(1, 2)
-        oil_qnt = float(send("[OIL-GET]"))
-        print(f"[OIL-GET] {oil_qnt} liters")
+        oil_data = send("[OIL-GET]")
+        oil_qnt = float(oil_data.split(" ")[1])
 
         if time_count % 10 == 0:
+            qnt_oil_recv = random.uniform(1, 2)
             print(f"[RECEIVING OIL] {qnt_oil_recv} liters")
             send(f"[OIL-SET] {qnt_oil_recv}")
 
         if oil_qnt > 0.75:
-            send("[OIL-SENT]")
+            send("[OIL-OUT]")
 
         time.sleep(1)
         time_count += 1

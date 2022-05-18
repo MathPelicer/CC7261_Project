@@ -35,21 +35,19 @@ def send(msg):
     return msg_recv
 
 def main():
-    etoh_qnt = float(send("[EtOH-GET]"))
-    print(f"[EtOH-GET] {etoh_qnt} liters")
 
     while True:
+        etoh_data = send("[EtOH-GET]")
+        etoh_qnt = float(etoh_data.split(" ")[1])
+
+        if etoh_qnt > 0 and etoh_qnt < 1:
+            send(f"[EtOH-OUT] {etoh_qnt}")
+        elif etoh_qnt > 1:
+            send(f"[EtOH-OUT] 1")
+
         qnt_etoh_recv = 0.25
         print(f"[RECEIVING EtOH] {qnt_etoh_recv} liters")
         send(f"[EtOH-SET] {qnt_etoh_recv}")
-
-        etoh_qnt = float(send("[EtOH-GET]"))
-        print(f"[EtOH-GET] {etoh_qnt} liters")
-
-        if etoh_qnt > 0 and etoh_qnt < 1:
-            send(f"[EtOH-SENT] {etoh_qnt}")
-        elif etoh_qnt > 1:
-            send(f"[EtOH-SENT] 1")
 
         time.sleep(1)
 

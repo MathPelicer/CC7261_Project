@@ -35,21 +35,19 @@ def send(msg):
     return msg_recv
 
 def main():
-    naoh_qnt = float(send("[NaOH-GET]"))
-    print(f"[NaOH-GET] {naoh_qnt} liters")
 
     while True:
+        naoh_data = send("[NaOH-GET]")
+        naoh_qnt = float(naoh_data.split(" ")[1])
+
+        if naoh_qnt > 0 and naoh_qnt < 1:
+            send(f"[NaOH-OUT] {naoh_qnt}")
+        elif naoh_qnt > 1:
+            send(f"[NaOH-OUT] 1")
+
         qnt_naoh_recv = 0.5
         print(f"[RECEIVING NaOH] {qnt_naoh_recv} liters")
         send(f"[NaOH-SET] {qnt_naoh_recv}")
-
-        naoh_qnt = float(send("[NaOH-GET]"))
-        print(f"[NaOH-GET] {naoh_qnt} liters")
-
-        if naoh_qnt > 0 and naoh_qnt < 1:
-            send(f"[NaOH-SENT] {naoh_qnt}")
-        elif naoh_qnt > 1:
-            send(f"[NaOH-SENT] 1")
 
         time.sleep(1)
 
