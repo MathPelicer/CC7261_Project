@@ -22,7 +22,10 @@ element_machinery = {"oil": 0,
                 "decanter": {
                     "capacity": 0,
                     "status": "waiting"
-                }}
+                },
+                "glycerine": 0,
+                "dryer": 0,
+                "washer": 0}
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
@@ -113,13 +116,31 @@ def handle_client(conn, addr):
                     time.sleep(1)
 
                 if element_machinery["decanter"]["status"] == "waiting":
-                    print(f"[REACTOR->DECANTER] {msg_out[1]} liters")
-                    time.sleep(int(float(msg_out[1])))
-                    element_machinery["reactor"]["mix"] -= float(msg_out[1])
-                    element_machinery["decanter"]["capacity"] += float(msg_out[1])
-                    element_machinery["decanter"]["status"] = "processing"
+                    if element_machinery["decanter"]["capacity"] + float(msg_out[1]) <= 10:
+                        print(f"[REACTOR->DECANTER] {msg_out[1]} liters")
+                        time.sleep(int(float(msg_out[1])))
+                        element_machinery["reactor"]["mix"] -= float(msg_out[1])
+                        element_machinery["decanter"]["capacity"] += float(msg_out[1])
+                        element_machinery["decanter"]["status"] = "processing"
+                    else:
+                        print("DO SOMETHING HERE, GREATER THAN THE MAX CAPACITY")
                 
                 conn.send(str(element_machinery["reactor"]).encode(FORMAT))
+
+            if "[DECANTER-GET]" in msg:
+                conn.send(str(element_machinery["decanter"]).encode(FORMAT))
+                print(f'[DECANTER-GET] {element_machinery["decanter"]}')
+
+            if "[DECANTER-OUT]" in msg:
+                decanter_out_dict = msg.split("_")
+                print(decanter_out_dict[1].replace("\'", "\""))
+                decanter_data = json.loads(decanter_out_dict[1].replace("\'", "\"").strip())
+                element_machinery["glycerine"] = decanter_data["glycerine"]
+                element_machinery["dryer"] = decanter_data["EtOH"]
+                element_machinery["washer"] = decanter_data["solution"]
+                element_machinery["decanter"]["status"] = decanter_data["status"]
+                conn.send("[DECANTER OUT]".encode(FORMAT))
+                print(f'[DECANTER OUT] {element_machinery["decanter"]}')
 
             if msg == DISCONNECT_MESSAGE:
                 connected = False
