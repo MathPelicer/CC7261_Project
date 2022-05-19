@@ -142,6 +142,10 @@ def handle_client(conn, addr):
                 conn.send("[DECANTER OUT]".encode(FORMAT))
                 print(f'[DECANTER OUT] {element_machinery["decanter"]}')
 
+            if "[DRYER-GET]" in msg:
+                conn.send(str(element_machinery["dryer"].encode(FORMAT)))
+                print(f'[DRYER-GET] {element_machinery["dryer"]}')
+
             if msg == DISCONNECT_MESSAGE:
                 connected = False
 
