@@ -135,10 +135,11 @@ def handle_client(conn, addr):
                 decanter_out_dict = msg.split("_")
                 print(decanter_out_dict[1].replace("\'", "\""))
                 decanter_data = json.loads(decanter_out_dict[1].replace("\'", "\"").strip())
-                element_machinery["glycerine"] = decanter_data["glycerine"]
-                element_machinery["dryer"] = decanter_data["EtOH"]
-                element_machinery["washer"] = decanter_data["solution"]
+                element_machinery["glycerine"] += decanter_data["glycerine"]
+                element_machinery["dryer"] += decanter_data["EtOH"]
+                element_machinery["washer"] += decanter_data["solution"]
                 element_machinery["decanter"]["status"] = decanter_data["status"]
+                element_machinery["decanter"]["capacity"] -= decanter_data["glycerine"] + decanter_data["EtOH"] + decanter_data["solution"]
                 conn.send("[DECANTER OUT]".encode(FORMAT))
                 print(f'[DECANTER OUT] {element_machinery["decanter"]}')
 
