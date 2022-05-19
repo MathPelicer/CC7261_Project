@@ -1,6 +1,7 @@
 import socket 
 import threading
 import json
+import time
 
 HEADER = 1024
 PORT = 5050
@@ -17,6 +18,10 @@ element_machinery = {"oil": 0,
                     "EtOH": 1,
                     "NaOH": 1,
                     "mix": 0
+                },
+                "decanter": {
+                    "capacity": 0,
+                    "status": "waiting"
                 }}
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -100,6 +105,21 @@ def handle_client(conn, addr):
                 element_machinery["reactor"] = reactor_data
                 conn.send("[REACTOR MIXING]".encode(FORMAT))
                 print(f'[REACTOR MIX] {element_machinery["reactor"]}')
+            
+            if "[REACTOR-OUT]" in msg:
+                msg_out = msg.split(" ")
+                while element_machinery["decanter"]["status"] != "waiting":
+                    print("[REACTOR] Waiting for decanter...")
+                    time.sleep(1)
+
+                if element_machinery["decanter"]["status"] == "waiting":
+                    print(f"[REACTOR->DECANTER] {msg_out[1]} liters")
+                    time.sleep(int(float(msg_out[1])))
+                    element_machinery["reactor"]["mix"] -= float(msg_out[1])
+                    element_machinery["decanter"]["capacity"] += float(msg_out[1])
+                    element_machinery["decanter"]["status"] = "processing"
+                
+                conn.send(str(element_machinery["reactor"]).encode(FORMAT))
 
             if msg == DISCONNECT_MESSAGE:
                 connected = False

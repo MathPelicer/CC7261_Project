@@ -60,22 +60,25 @@ def main():
                 reactor_dict["oil"] -= half_mix
                 reactor_dict["mix"] = mix_value + max_mix
                 print(f'[REACTOR-MIX] OIL: {reactor_dict["oil"]} | EtOH: {reactor_dict["EtOH"]} | NaOH: {reactor_dict["NaOH"]} | MIX: {reactor_dict["mix"]}')
+                time.sleep(max_mix)
                 send(f"[REACTOR-PROC]_{reactor_dict}")
 
-            if smallest_qnt < quarter_mix and smallest_qnt > 0 and (reactor_dict["oil"] >= (smallest_qnt * 2)):
+            elif smallest_qnt < quarter_mix and smallest_qnt > 0 and (reactor_dict["oil"] >= (smallest_qnt * 2)):
                 reactor_dict["EtOH"] -= smallest_qnt
                 reactor_dict["NaOH"] -= smallest_qnt
                 reactor_dict["oil"] -= smallest_qnt * 2
                 reactor_dict["mix"] = mix_value + (smallest_qnt * 4)
                 print(f'[REACTOR-MIX] OIL: {reactor_dict["oil"]} | EtOH: {reactor_dict["EtOH"]} | NaOH: {reactor_dict["NaOH"]} | MIX: {reactor_dict["mix"]}')
+                time.sleep(smallest_qnt * 4)
                 send(f"[REACTOR-PROC]_{reactor_dict}")
+            
+            else:
+                reactor_dict["mix"] = mix_value
 
-        # if naoh_qnt > 0 and naoh_qnt < 1:
-        #     send(f"[NaOH-SENT] {naoh_qnt}")
-        # elif naoh_qnt > 1:
-        #     send(f"[NaOH-SENT] 1")
+        if reactor_dict["mix"] > 0:
+            send(f"[REACTOR-OUT] {reactor_dict['mix']}")
 
-        time.sleep(5)
+        time.sleep(1)
 
 main()
 
