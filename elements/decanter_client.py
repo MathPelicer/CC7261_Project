@@ -13,7 +13,7 @@ PORT = 5050
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 SERVER_WIN = "192.168.0.6"
-SERVER_LINUX = "192.0.1.1"
+SERVER_LINUX = "127.0.1.1"
 
 cur_os = platform.system()
 
@@ -49,6 +49,7 @@ def main():
         print(f'[DECANTER-GET] CAPACITY: {decanter_dict["capacity"]} | STATUS: {decanter_dict["status"]}')
 
         if decanter_dict['status'] == "processing":
+            print(f"waiting {decanter_time} to process")
             time.sleep(decanter_time)
             decanter_out_dict["glycerine"] = decanter_dict["capacity"] * 0.01
             decanter_out_dict["EtOH"] = decanter_dict["capacity"] * 0.03
@@ -58,6 +59,6 @@ def main():
             
             send(f"[DECANTER-OUT]_{decanter_out_dict}")
 
-        
+        time.sleep(1)
 
 main()
