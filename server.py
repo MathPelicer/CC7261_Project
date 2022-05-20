@@ -50,9 +50,11 @@ def handle_client(conn, addr):
                 print(f'[OIL-GET] {element_machinery["oil"]}')
 
             if "[OIL-OUT]" in msg:
-                element_machinery["oil"] -= 0.75
-                element_machinery["reactor"]["oil"] += 0.75
-                conn.send("[OIL->REACTOR] 0.75 liter".encode(FORMAT))
+                msg_out = msg.split(" ")
+                oil_qnt = float(msg_out[1])
+                element_machinery["oil"] -= oil_qnt
+                element_machinery["reactor"]["oil"] += oil_qnt
+                conn.send(f"[OIL->REACTOR] {oil_qnt} liter".encode(FORMAT))
 
             if "[OIL-SET]" in msg:
                 msg_set = msg.split(" ")
@@ -67,11 +69,11 @@ def handle_client(conn, addr):
                 print(f'[EtOH-GET] {element_machinery["EtOH"]}')
 
             if "[EtOH-OUT]" in msg:
-                msg_set = msg.split(" ")
-                etoh_qnt = float(msg_set[1])
+                msg_out = msg.split(" ")
+                etoh_qnt = float(msg_out[1])
                 element_machinery["EtOH"] -= etoh_qnt
                 element_machinery["reactor"]["EtOH"] += etoh_qnt
-                conn.send(f"[EtOH->REACTOR] {msg_set[1]} liter".encode(FORMAT))
+                conn.send(f"[EtOH->REACTOR] {msg_out[1]} liter".encode(FORMAT))
 
             if "[EtOH-SET]" in msg:
                 msg_set = msg.split(" ")
