@@ -24,7 +24,7 @@ element_machinery = {"oil": 0,
                     "status": "waiting"
                 },
                 "glycerine": 0,
-                "dryer": 0,
+                "dryer": 3,
                 "washer": 0}
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -144,8 +144,17 @@ def handle_client(conn, addr):
                 print(f'[DECANTER OUT] {element_machinery["decanter"]}')
 
             if "[DRYER-GET]" in msg:
-                conn.send(str(element_machinery["dryer"].encode(FORMAT)))
+                conn.send(str(element_machinery["dryer"]).encode(FORMAT))
                 print(f'[DRYER-GET] {element_machinery["dryer"]}')
+
+            if "[DRYER-OUT]" in msg:
+                dryer_out_dict = msg.split("_")
+                print(dryer_out_dict[1].replace("\'", "\""))
+                dryer_data = json.loads(dryer_out_dict[1].replace("\'", "\"").strip())
+                element_machinery["dryer"] -= dryer_data["dryer"]
+                element_machinery["EtOH"] += dryer_data["EtOH"]
+                conn.send("[DRYER OUT]".encode(FORMAT))
+                print(f'[DRYER OUT] {element_machinery["dryer"]}')
 
             if msg == DISCONNECT_MESSAGE:
                 connected = False

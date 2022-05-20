@@ -39,12 +39,12 @@ def main():
     standard_sleeptime = 5
 
     while True:
-        dryer_data = send("[DRYER-GET]")
+        dryer_data = float(send("[DRYER-GET]"))
         print(f'[DRYER-GET] {dryer_data}')
 
         if dryer_data >= 1:
             time.sleep(standard_sleeptime)
-            dryer_out_dict["dryer"] = dryer_data - 1
+            dryer_out_dict["dryer"] = 1
             dryer_out_dict["EtOH"] = 0.95
         else:
             sleep_time = standard_sleeptime * dryer_data
@@ -52,7 +52,8 @@ def main():
             dryer_out_dict["dryer"] = dryer_data
             dryer_out_dict["EtOH"] = dryer_data * 0.95
 
-        send(F"[DRYER-OUT]_{dryer_out_dict}")
+        send(f"[DRYER-OUT]_{dryer_out_dict}")
 
+        time.sleep(1)
 
 main()
