@@ -49,6 +49,6 @@ def main():
         print(f"[RECEIVING EtOH] {qnt_etoh_recv} liters")
         send(f"[EtOH-SET] {qnt_etoh_recv}")
 
-        time.sleep(5)
+        time.sleep(1)
 
 main()

@@ -36,7 +36,6 @@ def send(msg):
 
 def main():
     washer_out_dict = {}
-    standard_sleeptime = 5
     max_out = 1.5
 
     while True:
