@@ -25,7 +25,10 @@ element_machinery = {"oil": 0,
                 },
                 "glycerine": 0,
                 "dryer": 3,
-                "washer": 0}
+                "washer_0": 3,
+                "washer_1": 0,
+                "washer_2": 0,
+                "bio_dryer": 0}
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
@@ -155,6 +158,38 @@ def handle_client(conn, addr):
                 element_machinery["EtOH"] += dryer_data["EtOH"]
                 conn.send("[DRYER OUT]".encode(FORMAT))
                 print(f'[DRYER OUT] {element_machinery["dryer"]}')
+
+            if msg in ['[WASHER-GET@0]', '[WASHER-GET@1]', '[WASHER-GET@2]']:
+                if "[WASHER-GET@0]" in msg:
+                    conn.send(str(element_machinery["washer_0"]).encode(FORMAT))
+                    print(f'[WASHER-GET@0] {element_machinery["washer_0"]}')
+                elif "[WASHER-GET@1]" in msg:
+                    conn.send(str(element_machinery["washer_1"]).encode(FORMAT))
+                    print(f'[WASHER-GET@1] {element_machinery["washer_1"]}')
+                elif "[WASHER-GET@2]" in msg:
+                    conn.send(str(element_machinery["washer_2"]).encode(FORMAT))
+                    print(f'[WASHER-GET@2] {element_machinery["washer_2"]}')
+
+            if ('[WASHER-OUT@0]' in msg) or ('[WASHER-OUT@1]' in msg) or ('[WASHER-OUT@2]' in msg):
+                print("Msg = " + msg)
+                washer_out_dict = msg.split("_")
+                print(f"Dict = {washer_out_dict}")
+                print(washer_out_dict[1].replace("\'", "\""))
+                washer_data = json.loads(washer_out_dict[1].replace("\'", "\"").strip())
+                if washer_out_dict[0] == "[WASHER-OUT@0]":
+                    element_machinery["washer_0"] -= washer_data["out-volume"]
+                    element_machinery["washer_1"] += washer_data["out-volume"]
+                    print(f"[WASHER-0 -> WASHER-1] {washer_data['out-volume']}")
+                elif "[WASHER-OUT@1]" in msg:
+                    element_machinery["washer_1"] -= washer_data["out-volume"]
+                    element_machinery["washer_2"] += washer_data["out-volume"]
+                    print(f"[WASHER-1 -> WASHER-2] {washer_data['out-volume']}")
+                elif "[WASHER-OUT@2]" in msg:
+                    element_machinery["washer_1"] -= washer_data["out-volume"]
+                    element_machinery["bio_dryer"] += washer_data["out-volume"]
+                    print(f"[WASHER-2 -> BIO-DRYER] {washer_data['out-volume']}")
+                print("out")
+                conn.send("[WASHER OUT]".encode(FORMAT))
 
             if msg == DISCONNECT_MESSAGE:
                 connected = False
