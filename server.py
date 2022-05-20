@@ -187,7 +187,7 @@ def handle_client(conn, addr):
                     element_machinery["washer_2"] += washer_data["out-volume"]
                     print(f"[WASHER-1 -> WASHER-2] {washer_data['out-volume']}")
                 elif "[WASHER-OUT@2]" in msg:
-                    element_machinery["washer_1"] -= washer_data["out-volume"]
+                    element_machinery["washer_2"] -= washer_data["out-volume"]
                     element_machinery["bio_dryer"] += washer_data["out-volume"]
                     print(f"[WASHER-2 -> BIO-DRYER] {washer_data['out-volume']}")
                 print("out")
