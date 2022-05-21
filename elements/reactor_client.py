@@ -44,19 +44,19 @@ def main():
             smallest_qnt = float(reactor_dict[smallest_element])
 
             if smallest_qnt >= quarter_mix and (reactor_dict["oil"] >= (smallest_qnt * 2)):
-                reactor_dict["EtOH"] -= quarter_mix
-                reactor_dict["NaOH"] -= quarter_mix
-                reactor_dict["oil"] -= half_mix
-                reactor_dict["mix"] = mix_value + max_mix
+                reactor_dict["EtOH"] = quarter_mix
+                reactor_dict["NaOH"] = quarter_mix
+                reactor_dict["oil"] = half_mix
+                reactor_dict["mix"] = max_mix
                 print(f'[REACTOR-MIX] OIL: {reactor_dict["oil"]} | EtOH: {reactor_dict["EtOH"]} | NaOH: {reactor_dict["NaOH"]} | MIX: {reactor_dict["mix"]}')
                 time.sleep(max_mix)
                 send(f"[REACTOR-PROC]_{reactor_dict}", client)
 
             elif smallest_qnt < quarter_mix and smallest_qnt > 0 and (reactor_dict["oil"] >= (smallest_qnt * 2)):
-                reactor_dict["EtOH"] -= smallest_qnt
-                reactor_dict["NaOH"] -= smallest_qnt
-                reactor_dict["oil"] -= smallest_qnt * 2
-                reactor_dict["mix"] = mix_value + (smallest_qnt * 4)
+                reactor_dict["EtOH"] = smallest_qnt
+                reactor_dict["NaOH"] = smallest_qnt
+                reactor_dict["oil"] = smallest_qnt * 2
+                reactor_dict["mix"] = (smallest_qnt * 4)
                 print(f'[REACTOR-MIX] OIL: {reactor_dict["oil"]} | EtOH: {reactor_dict["EtOH"]} | NaOH: {reactor_dict["NaOH"]} | MIX: {reactor_dict["mix"]}')
                 time.sleep(smallest_qnt * 4)
                 send(f"[REACTOR-PROC]_{reactor_dict}", client)
@@ -64,8 +64,8 @@ def main():
             else:
                 reactor_dict["mix"] = mix_value
 
-        if reactor_dict["mix"] > 0:
-            send(f"[REACTOR-OUT] {reactor_dict['mix']}", client)
+        if mix_value > 0:
+            send(f"[REACTOR-OUT] {mix_value}", client)
 
         time.sleep(1)
 

@@ -110,7 +110,10 @@ def handle_client(conn, addr):
                 msg_reactor_proc = msg.split("_")
                 print(msg_reactor_proc[1].replace("\'", "\""))
                 reactor_data = json.loads(msg_reactor_proc[1].replace("\'", "\"").strip())
-                element_machinery["reactor"] = reactor_data
+                element_machinery["reactor"]["oil"] -= reactor_data["oil"]
+                element_machinery["reactor"]["EtOH"] -= reactor_data["EtOH"]
+                element_machinery["reactor"]["NaOH"] -= reactor_data["NaOH"]
+                element_machinery["reactor"]["mix"] += reactor_data["mix"]
                 conn.send("[REACTOR MIXING]".encode(FORMAT))
                 print(f'[REACTOR MIX] {element_machinery["reactor"]}')
             
@@ -130,6 +133,7 @@ def handle_client(conn, addr):
                     else:
                         print("DO SOMETHING HERE, GREATER THAN THE MAX CAPACITY")
                 
+                print("[REACTOR-OUT]")
                 conn.send(str(element_machinery["reactor"]).encode(FORMAT))
 
             if "[DECANTER-GET]" in msg:
