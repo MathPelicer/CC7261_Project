@@ -55,6 +55,7 @@ def handle_client(conn, addr):
                 element_machinery["oil"] -= oil_qnt
                 element_machinery["reactor"]["oil"] += oil_qnt
                 conn.send(f"[OIL->REACTOR] {oil_qnt} liter".encode(FORMAT))
+                print(f"[OIL->REACTOR] {oil_qnt}")
 
             if "[OIL-SET]" in msg:
                 msg_set = msg.split(" ")
@@ -73,7 +74,8 @@ def handle_client(conn, addr):
                 etoh_qnt = float(msg_out[1])
                 element_machinery["EtOH"] -= etoh_qnt
                 element_machinery["reactor"]["EtOH"] += etoh_qnt
-                conn.send(f"[EtOH->REACTOR] {msg_out[1]} liter".encode(FORMAT))
+                conn.send(f"[EtOH->REACTOR] {etoh_qnt} liter".encode(FORMAT))
+                print(f"[OIL->REACTOR] {etoh_qnt}")
 
             if "[EtOH-SET]" in msg:
                 msg_set = msg.split(" ")
@@ -92,7 +94,8 @@ def handle_client(conn, addr):
                 naoh_qnt = float(msg_set[1])
                 element_machinery["NaOH"] -= naoh_qnt
                 element_machinery["reactor"]["NaOH"] += naoh_qnt
-                conn.send(f"[NaOH->REACTOR] {msg_set[1]} liter".encode(FORMAT))
+                conn.send(f"[NaOH->REACTOR] {naoh_qnt} liter".encode(FORMAT))
+                print(f"[NaOH->REACTOR] {naoh_qnt}")
                 
             if "[NaOH-SET]" in msg:
                 msg_set = msg.split(" ")
@@ -108,14 +111,13 @@ def handle_client(conn, addr):
 
             if "[REACTOR-PROC]" in msg:
                 msg_reactor_proc = msg.split("_")
-                print(msg_reactor_proc[1].replace("\'", "\""))
                 reactor_data = json.loads(msg_reactor_proc[1].replace("\'", "\"").strip())
                 element_machinery["reactor"]["oil"] -= reactor_data["oil"]
                 element_machinery["reactor"]["EtOH"] -= reactor_data["EtOH"]
                 element_machinery["reactor"]["NaOH"] -= reactor_data["NaOH"]
                 element_machinery["reactor"]["mix"] += reactor_data["mix"]
                 conn.send("[REACTOR MIXING]".encode(FORMAT))
-                print(f'[REACTOR MIX] {element_machinery["reactor"]}')
+                print(f'[REACTOR PROCESSING] {element_machinery["reactor"]}')
             
             if "[REACTOR-OUT]" in msg:
                 msg_out = msg.split(" ")
@@ -133,8 +135,8 @@ def handle_client(conn, addr):
                     else:
                         print("DO SOMETHING HERE, GREATER THAN THE MAX CAPACITY")
                 
-                print("[REACTOR-OUT]")
                 conn.send(str(element_machinery["reactor"]).encode(FORMAT))
+                print(f"[REACTOR-OUT] {element_machinery['reactor']}")
 
             if "[DECANTER-GET]" in msg:
                 conn.send(str(element_machinery["decanter"]).encode(FORMAT))
@@ -142,15 +144,14 @@ def handle_client(conn, addr):
 
             if "[DECANTER-OUT]" in msg:
                 decanter_out_dict = msg.split("_")
-                print(decanter_out_dict[1].replace("\'", "\""))
                 decanter_data = json.loads(decanter_out_dict[1].replace("\'", "\"").strip())
                 element_machinery["glycerine"] += decanter_data["glycerine"]
                 element_machinery["dryer"] += decanter_data["EtOH"]
                 element_machinery["washer"] += decanter_data["solution"]
                 element_machinery["decanter"]["status"] = decanter_data["status"]
                 element_machinery["decanter"]["capacity"] -= decanter_data["glycerine"] + decanter_data["EtOH"] + decanter_data["solution"]
-                conn.send("[DECANTER OUT]".encode(FORMAT))
-                print(f'[DECANTER OUT] {element_machinery["decanter"]}')
+                conn.send("[DECANTER-OUT]".encode(FORMAT))
+                print(f'[DECANTER-OUT] {element_machinery["decanter"]}')
 
             if "[DRYER-GET]" in msg:
                 conn.send(str(element_machinery["dryer"]).encode(FORMAT))
@@ -158,7 +159,6 @@ def handle_client(conn, addr):
 
             if "[DRYER-OUT]" in msg:
                 dryer_out_dict = msg.split("_")
-                print(dryer_out_dict[1].replace("\'", "\""))
                 dryer_data = json.loads(dryer_out_dict[1].replace("\'", "\"").strip())
                 element_machinery["dryer"] -= dryer_data["dryer"]
                 element_machinery["EtOH"] += dryer_data["EtOH"]
@@ -177,10 +177,7 @@ def handle_client(conn, addr):
                     print(f'[WASHER-GET@2] {element_machinery["washer_2"]}')
 
             if ('[WASHER-OUT@0]' in msg) or ('[WASHER-OUT@1]' in msg) or ('[WASHER-OUT@2]' in msg):
-                print("Msg = " + msg)
                 washer_out_dict = msg.split("_")
-                print(f"Dict = {washer_out_dict}")
-                print(washer_out_dict[1].replace("\'", "\""))
                 washer_data = json.loads(washer_out_dict[1].replace("\'", "\"").strip())
                 if washer_out_dict[0] == "[WASHER-OUT@0]":
                     element_machinery["washer_0"] -= washer_data["out-volume"]
@@ -194,7 +191,7 @@ def handle_client(conn, addr):
                     element_machinery["washer_2"] -= washer_data["out-volume"]
                     element_machinery["bio_dryer"] += washer_data["out-volume"]
                     print(f"[WASHER-2 -> BIO-DRYER] {washer_data['out-volume']}")
-                print("out")
+    
                 conn.send("[WASHER OUT]".encode(FORMAT))
 
             if msg == DISCONNECT_MESSAGE:
