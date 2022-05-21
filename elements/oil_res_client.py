@@ -5,10 +5,7 @@ import random
 import time
 import platform
 
-import sys  
-sys.path.insert(0, '../global_functions')
-
-from global_func import send
+from multiclient_functions.multiclient_functions import send
 
 HEADER = 1024
 PORT = 5050

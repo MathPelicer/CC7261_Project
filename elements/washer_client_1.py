@@ -4,6 +4,7 @@ import socket
 import random
 import time
 import platform
+from multiclient_functions.multiclient_functions import send
 
 HEADER = 1024
 PORT = 5050
@@ -22,24 +23,12 @@ else:
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
 
-def send(msg):
-    message = msg.encode(FORMAT)
-    msg_length = len(message)
-    send_length = str(msg_length).encode(FORMAT)
-    send_length += b' ' * (HEADER - len(send_length))
-    client.send(send_length)
-    client.send(message)
-
-    msg_recv = client.recv(2048).decode(FORMAT)
-    print(msg_recv)
-    return msg_recv
-
 def main():
     washer_out_dict = {}
     max_out = 1.5
 
     while True:
-        washer_data = float(send("[WASHER-GET@1]"))
+        washer_data = float(send("[WASHER-GET@1]"), client)
         print(f'[WASHER-GET-1] {washer_data}')
 
         washer_out_dict["out-volume"] = washer_data * 0.975
@@ -49,7 +38,7 @@ def main():
 
         print(washer_out_dict)
             
-        send(f"[WASHER-OUT@1]_{washer_out_dict}")
+        send(f"[WASHER-OUT@1]_{washer_out_dict}", client)
 
         time.sleep(1)
 main()

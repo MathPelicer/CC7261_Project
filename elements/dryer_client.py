@@ -1,9 +1,7 @@
-
-import json
 import socket
-import random
 import time
 import platform
+from multiclient_functions.multiclient_functions import send
 
 HEADER = 1024
 PORT = 5050
@@ -22,24 +20,12 @@ else:
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
 
-def send(msg):
-    message = msg.encode(FORMAT)
-    msg_length = len(message)
-    send_length = str(msg_length).encode(FORMAT)
-    send_length += b' ' * (HEADER - len(send_length))
-    client.send(send_length)
-    client.send(message)
-
-    msg_recv = client.recv(2048).decode(FORMAT)
-    print(msg_recv)
-    return msg_recv
-
 def main():
     dryer_out_dict = {}
     standard_sleeptime = 5
 
     while True:
-        dryer_data = float(send("[DRYER-GET]"))
+        dryer_data = float(send("[DRYER-GET]"), client)
         print(f'[DRYER-GET] {dryer_data}')
 
         if dryer_data >= 1:
@@ -52,7 +38,7 @@ def main():
             dryer_out_dict["dryer"] = dryer_data
             dryer_out_dict["EtOH"] = dryer_data * 0.995
 
-        send(f"[DRYER-OUT]_{dryer_out_dict}")
+        send(f"[DRYER-OUT]_{dryer_out_dict}", client)
 
         time.sleep(1)
 

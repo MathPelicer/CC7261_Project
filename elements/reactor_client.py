@@ -6,6 +6,7 @@ import socket
 import time
 import platform
 import json
+from multiclient_functions.multiclient_functions import send
 
 HEADER = 1024
 PORT = 5050
@@ -24,25 +25,13 @@ else:
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
 
-def send(msg):
-    message = msg.encode(FORMAT)
-    msg_length = len(message)
-    send_length = str(msg_length).encode(FORMAT)
-    send_length += b' ' * (HEADER - len(send_length))
-    client.send(send_length)
-    client.send(message)
-
-    msg_recv = client.recv(2048).decode(FORMAT)
-    print(msg_recv)
-    return msg_recv
-
 def main():
     quarter_mix = 1.25
     half_mix = 2.5
     max_mix = 5
 
     while True:
-        reactor_data = send("[REACTOR-GET]")
+        reactor_data = send("[REACTOR-GET]", client)
         reactor_dict = json.loads(reactor_data.replace("\'", "\""))
         print(f'[REACTOR-GET] OIL: {reactor_dict["oil"]} | EtOH: {reactor_dict["EtOH"]} | NaOH: {reactor_dict["NaOH"]} | MIX: {reactor_dict["mix"]}')
 
@@ -61,7 +50,7 @@ def main():
                 reactor_dict["mix"] = mix_value + max_mix
                 print(f'[REACTOR-MIX] OIL: {reactor_dict["oil"]} | EtOH: {reactor_dict["EtOH"]} | NaOH: {reactor_dict["NaOH"]} | MIX: {reactor_dict["mix"]}')
                 time.sleep(max_mix)
-                send(f"[REACTOR-PROC]_{reactor_dict}")
+                send(f"[REACTOR-PROC]_{reactor_dict}", client)
 
             elif smallest_qnt < quarter_mix and smallest_qnt > 0 and (reactor_dict["oil"] >= (smallest_qnt * 2)):
                 reactor_dict["EtOH"] -= smallest_qnt
@@ -70,13 +59,13 @@ def main():
                 reactor_dict["mix"] = mix_value + (smallest_qnt * 4)
                 print(f'[REACTOR-MIX] OIL: {reactor_dict["oil"]} | EtOH: {reactor_dict["EtOH"]} | NaOH: {reactor_dict["NaOH"]} | MIX: {reactor_dict["mix"]}')
                 time.sleep(smallest_qnt * 4)
-                send(f"[REACTOR-PROC]_{reactor_dict}")
+                send(f"[REACTOR-PROC]_{reactor_dict}", client)
             
             else:
                 reactor_dict["mix"] = mix_value
 
         if reactor_dict["mix"] > 0:
-            send(f"[REACTOR-OUT] {reactor_dict['mix']}")
+            send(f"[REACTOR-OUT] {reactor_dict['mix']}", client)
 
         time.sleep(1)
 
