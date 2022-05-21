@@ -28,10 +28,11 @@ def main():
     max_out = 1.5
 
     while True:
-        washer_data = float(send("[WASHER-GET@0]"), client)
+        washer_data = float(send("[WASHER-GET@0]", client))
         print(f'[WASHER-GET-0] {washer_data}')
 
         washer_out_dict["out-volume"] = washer_data * 0.975
+        washer_out_dict["emulsion"] = washer_data * 0.025
         
         if washer_out_dict["out-volume"] >= max_out:
             washer_out_dict["out-volume"] = max_out

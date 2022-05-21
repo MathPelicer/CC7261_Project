@@ -28,6 +28,7 @@ element_machinery = {"oil": 0,
                 "washer_0": 3,
                 "washer_1": 0,
                 "washer_2": 0,
+                "emulsion": 0,
                 "bio_dryer": 0}
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -179,19 +180,20 @@ def handle_client(conn, addr):
             if ('[WASHER-OUT@0]' in msg) or ('[WASHER-OUT@1]' in msg) or ('[WASHER-OUT@2]' in msg):
                 washer_out_dict = msg.split("_")
                 washer_data = json.loads(washer_out_dict[1].replace("\'", "\"").strip())
-                if washer_out_dict[0] == "[WASHER-OUT@0]":
-                    element_machinery["washer_0"] -= washer_data["out-volume"]
+                if "[WASHER-OUT@0]" in msg:
+                    element_machinery["washer_0"] -= washer_data["out-volume"] + washer_data["emulsion"]
                     element_machinery["washer_1"] += washer_data["out-volume"]
                     print(f"[WASHER-0 -> WASHER-1] {washer_data['out-volume']}")
                 elif "[WASHER-OUT@1]" in msg:
-                    element_machinery["washer_1"] -= washer_data["out-volume"]
+                    element_machinery["washer_1"] -= washer_data["out-volume"] + washer_data["emulsion"]
                     element_machinery["washer_2"] += washer_data["out-volume"]
                     print(f"[WASHER-1 -> WASHER-2] {washer_data['out-volume']}")
                 elif "[WASHER-OUT@2]" in msg:
-                    element_machinery["washer_2"] -= washer_data["out-volume"]
+                    element_machinery["washer_2"] -= washer_data["out-volume"] + washer_data["emulsion"]
                     element_machinery["bio_dryer"] += washer_data["out-volume"]
                     print(f"[WASHER-2 -> BIO-DRYER] {washer_data['out-volume']}")
-    
+                
+                element_machinery["emulsion"] += washer_data["emulsion"]
                 conn.send("[WASHER OUT]".encode(FORMAT))
 
             if msg == DISCONNECT_MESSAGE:
