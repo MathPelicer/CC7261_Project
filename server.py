@@ -65,7 +65,6 @@ def handle_client(conn, addr):
                 print(f'[OIL RECEIVED] {element_machinery["oil"]} liters in total')
 
             # EtOH communication protocol #
-
             if "[EtOH-GET]" in msg:
                 conn.send(f'[EtOH-GET] {element_machinery["EtOH"]}'.encode(FORMAT))
                 print(f'[EtOH-GET] {element_machinery["EtOH"]}')
@@ -85,7 +84,6 @@ def handle_client(conn, addr):
                 print(f'[EtOH RECEIVED] {element_machinery["EtOH"]} liters in total')
 
             # NaOH communication protocol #
-
             if "[NaOH-GET]" in msg:
                 conn.send(f'[NaOH-GET] {element_machinery["NaOH"]}'.encode(FORMAT))
                 print(f'[NaOH-GET] {element_machinery["NaOH"]}')
@@ -104,8 +102,7 @@ def handle_client(conn, addr):
                 conn.send("[NaOH RECEIVED]".encode(FORMAT))
                 print(f'[NaOH RECEIVED] {element_machinery["NaOH"]} liters in total')
 
-            # REactor communication protocol #
-
+            # Reactor communication protocol #
             if "[REACTOR-GET]" in msg:
                 conn.send(str(element_machinery["reactor"]).encode(FORMAT))
                 print(f'[REACTOR-GET] {element_machinery["reactor"]}')
