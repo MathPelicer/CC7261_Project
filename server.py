@@ -132,7 +132,12 @@ def handle_client(conn, addr):
                         element_machinery["decanter"]["capacity"] += float(msg_out[1])
                         element_machinery["decanter"]["status"] = "processing"
                     else:
-                        print("DO SOMETHING HERE, GREATER THAN THE MAX CAPACITY")
+                        print(f"[REACTOR->DECANTER] 10 liters")
+                        max_transfer = 10
+                        element_machinery["reactor"]["mix"] -= max_transfer
+                        element_machinery["decanter"]["capacity"] += max_transfer
+                        element_machinery["decanter"]["status"] = "processing"
+
                 
                 conn.send(str(element_machinery["reactor"]).encode(FORMAT))
                 print(f"[REACTOR-OUT] {element_machinery['reactor']}")
@@ -146,7 +151,7 @@ def handle_client(conn, addr):
                 decanter_data = json.loads(decanter_out_dict[1].replace("\'", "\"").strip())
                 element_machinery["glycerine"] += decanter_data["glycerine"]
                 element_machinery["dryer"] += decanter_data["EtOH"]
-                element_machinery["washer"] += decanter_data["solution"]
+                element_machinery["washer_0"] += decanter_data["solution"]
                 element_machinery["decanter"]["status"] = decanter_data["status"]
                 element_machinery["decanter"]["capacity"] -= decanter_data["glycerine"] + decanter_data["EtOH"] + decanter_data["solution"]
                 conn.send("[DECANTER-OUT]".encode(FORMAT))
@@ -214,6 +219,7 @@ def handle_client(conn, addr):
 
             print(f"[{addr}] {msg}")
             print(element_machinery)
+            #time.sleep(1)
 
     conn.close()
         
