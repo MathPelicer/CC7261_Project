@@ -8,7 +8,7 @@ PORT = 5050
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 SERVER_WIN = "192.168.0.6"
-SERVER_LINUX = "192.0.1.1"
+SERVER_LINUX = "127.0.1.1"
 
 cur_os = platform.system()
 
