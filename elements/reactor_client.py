@@ -39,7 +39,6 @@ def main():
         reactor_dict.pop("mix")
         smallest_element = min(reactor_dict, key=reactor_dict.get)
         
-
         if smallest_element == 'NaOH' or smallest_element == 'EtOH':
             smallest_qnt = float(reactor_dict[smallest_element])
 
@@ -63,6 +62,17 @@ def main():
             
             else:
                 reactor_dict["mix"] = mix_value
+
+        elif smallest_element == 'oil':
+            smallest_qnt = float(reactor_dict[smallest_element])
+
+            reactor_dict["EtOH"] = smallest_qnt / 2
+            reactor_dict["NaOH"] = smallest_qnt / 2
+            reactor_dict["oil"] = smallest_qnt
+            reactor_dict["mix"] = (smallest_qnt * 4)
+            print(f'[REACTOR-MIX] OIL: {reactor_dict["oil"]} | EtOH: {reactor_dict["EtOH"]} | NaOH: {reactor_dict["NaOH"]} | MIX: {reactor_dict["mix"]}')
+            time.sleep(smallest_qnt * 4)
+            send(f"[REACTOR-PROC]_{reactor_dict}", client)
 
         if mix_value > 0:
             send(f"[REACTOR-OUT] {mix_value}", client)
