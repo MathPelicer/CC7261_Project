@@ -25,7 +25,7 @@ def main():
     standard_sleeptime = 5
 
     while True:
-        dryer_data = float(send("[DRYER-GET]"), client)
+        dryer_data = float(send("[DRYER-GET]", client))
         print(f'[DRYER-GET] {dryer_data}')
 
         if dryer_data >= 1:
