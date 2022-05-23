@@ -29,7 +29,8 @@ element_machinery = {"oil": 0,
                 "washer_1": 0,
                 "washer_2": 0,
                 "emulsion": 0,
-                "bio_dryer": 0}
+                "bio_dryer": 8,
+                "biodiesel": 0}
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
@@ -192,6 +193,21 @@ def handle_client(conn, addr):
                 
                 element_machinery["emulsion"] += washer_data["emulsion"]
                 conn.send("[WASHER OUT]".encode(FORMAT))
+
+            if "[BIO-DRYER-GET]" in msg:
+                conn.send(str(element_machinery["bio_dryer"]).encode(FORMAT))
+                print(f'[DRYER-GET] {element_machinery["bio_dryer"]}')
+
+            if "[BIO-DRYER-OUT]" in msg:
+                
+                dryer_out_dict = msg.split("_")
+                print(dryer_out_dict)
+                dryer_data = json.loads(dryer_out_dict[1].replace("\'", "\"").strip())
+                print(dryer_data)
+                element_machinery["bio_dryer"] -= dryer_data["bio-dryer"]
+                element_machinery["biodiesel"] += dryer_data["biodiesel"]
+                conn.send("[BIO-DRYER OUT]".encode(FORMAT))
+                print(f'[BIO DRYER OUT] {element_machinery["bio_dryer"]}')
 
             if msg == DISCONNECT_MESSAGE:
                 connected = False

@@ -25,20 +25,20 @@ def main():
     standard_sleeptime = 5
 
     while True:
-        dryer_data = float(send("[DRYER-GET]"), client)
-        print(f'[DRYER-GET] {dryer_data}')
+        dryer_data = float(send("[BIO-DRYER-GET]", client))
+        print(f'[BIO-DRYER-GET] {dryer_data}')
 
         if dryer_data >= 1:
             time.sleep(standard_sleeptime)
-            biodryer_out_dict["dryer"] = 1
+            biodryer_out_dict["bio-dryer"] = 1
             biodryer_out_dict["biodiesel"] = 0.995
         else:
             sleep_time = standard_sleeptime * dryer_data
             time.sleep(sleep_time)
-            biodryer_out_dict["dryer"] = dryer_data
+            biodryer_out_dict["bio-dryer"] = dryer_data
             biodryer_out_dict["biodiesel"] = dryer_data * 0.995
 
-        send(f"[DRYER-OUT]_{biodryer_out_dict}", client)
+        send(f"[BIO-DRYER-OUT]_{biodryer_out_dict}", client)
 
         time.sleep(1)
 
