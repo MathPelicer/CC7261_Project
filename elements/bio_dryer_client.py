@@ -32,11 +32,13 @@ def main():
             time.sleep(standard_sleeptime)
             biodryer_out_dict["bio-dryer"] = 1
             biodryer_out_dict["biodiesel"] = 0.995
+            biodryer_out_dict["lost"] = 0.005
         else:
             sleep_time = standard_sleeptime * dryer_data
             time.sleep(sleep_time)
             biodryer_out_dict["bio-dryer"] = dryer_data
             biodryer_out_dict["biodiesel"] = dryer_data * 0.995
+            biodryer_out_dict["lost"] = dryer_data * 0.005
 
         send(f"[BIO-DRYER-OUT]_{biodryer_out_dict}", client)
 

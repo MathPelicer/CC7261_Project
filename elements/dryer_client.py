@@ -32,11 +32,13 @@ def main():
             time.sleep(standard_sleeptime)
             dryer_out_dict["dryer"] = 1
             dryer_out_dict["EtOH"] = 0.995
+            dryer_out_dict["lost"] = 0.005
         else:
             sleep_time = standard_sleeptime * dryer_data
             time.sleep(sleep_time)
             dryer_out_dict["dryer"] = dryer_data
             dryer_out_dict["EtOH"] = dryer_data * 0.995
+            dryer_out_dict["lost"] = dryer_data * 0.005
 
         send(f"[DRYER-OUT]_{dryer_out_dict}", client)
 
