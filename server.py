@@ -10,27 +10,31 @@ ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 
+
 element_machinery = {"oil": 0,
                 "EtOH": 0,
                 "NaOH": 0,
                 "reactor": {
-                    "oil": 3,
-                    "EtOH": 1,
-                    "NaOH": 1,
-                    "mix": 0
+                    "oil": 5,
+                    "EtOH": 5,
+                    "NaOH": 5,
+                    "mix": 0,
+                    "cycles": 0
                 },
                 "decanter": {
-                    "capacity": 0,
-                    "status": "waiting"
+                    "capacity": 5,
+                    "status": "waiting",
+                    "cycles": 0
                 },
                 "glycerine": 0,
-                "dryer": 3,
-                "washer_0": 3,
+                "dryer": 5,
+                "washer_0": 0,
                 "washer_1": 0,
                 "washer_2": 0,
                 "emulsion": 0,
-                "bio_dryer": 8,
-                "biodiesel": 0}
+                "bio_dryer": 5,
+                "biodiesel": 0,
+                "lost": 0}
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
@@ -115,6 +119,7 @@ def handle_client(conn, addr):
                 element_machinery["reactor"]["EtOH"] -= reactor_data["EtOH"]
                 element_machinery["reactor"]["NaOH"] -= reactor_data["NaOH"]
                 element_machinery["reactor"]["mix"] += reactor_data["mix"]
+                element_machinery["reactor"]["cycles"] += 1
                 conn.send("[REACTOR MIXING]".encode(FORMAT))
                 print(f'[REACTOR PROCESSING] {element_machinery["reactor"]}')
             
@@ -154,6 +159,7 @@ def handle_client(conn, addr):
                 element_machinery["washer_0"] += decanter_data["solution"]
                 element_machinery["decanter"]["status"] = decanter_data["status"]
                 element_machinery["decanter"]["capacity"] -= decanter_data["glycerine"] + decanter_data["EtOH"] + decanter_data["solution"]
+                element_machinery["decanter"]["cycles"] += 1
                 conn.send("[DECANTER-OUT]".encode(FORMAT))
                 print(f'[DECANTER-OUT] {element_machinery["decanter"]}')
 
@@ -166,6 +172,7 @@ def handle_client(conn, addr):
                 dryer_data = json.loads(dryer_out_dict[1].replace("\'", "\"").strip())
                 element_machinery["dryer"] -= dryer_data["dryer"]
                 element_machinery["EtOH"] += dryer_data["EtOH"]
+                element_machinery["lost"] += dryer_data["lost"]
                 conn.send("[DRYER OUT]".encode(FORMAT))
                 print(f'[DRYER OUT] {element_machinery["dryer"]}')
 
@@ -204,13 +211,13 @@ def handle_client(conn, addr):
                 print(f'[DRYER-GET] {element_machinery["bio_dryer"]}')
 
             if "[BIO-DRYER-OUT]" in msg:
-                
                 dryer_out_dict = msg.split("_")
                 print(dryer_out_dict)
                 dryer_data = json.loads(dryer_out_dict[1].replace("\'", "\"").strip())
                 print(dryer_data)
                 element_machinery["bio_dryer"] -= dryer_data["bio-dryer"]
                 element_machinery["biodiesel"] += dryer_data["biodiesel"]
+                element_machinery["lost"] += dryer_data["lost"]
                 conn.send("[BIO-DRYER OUT]".encode(FORMAT))
                 print(f'[BIO DRYER OUT] {element_machinery["bio_dryer"]}')
 
